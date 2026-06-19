@@ -1,0 +1,4 @@
+query_id,query,relevant_item_ids
+q1,high protein vegetarian dinner,veg_web_1|veg_web_2|veg_yt_1|veg_yt_2
+q2,index funds beginner investing,invest_web_1|invest_web_2|invest_yt_1
+q3,beginner bodyweight workout,gym_web_1|gym_yt_1

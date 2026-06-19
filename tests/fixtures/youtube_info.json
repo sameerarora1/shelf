@@ -1,0 +1,23 @@
+{
+  "id": "abc123",
+  "title": "Beginner Strength Training Basics",
+  "uploader": "Example Fitness Channel",
+  "channel": "Example Fitness Channel",
+  "description": "A concise beginner workout video covering sets, reps, and safe exercise progression.",
+  "upload_date": "20240115",
+  "duration": 612,
+  "tags": ["fitness", "workout", "strength"],
+  "categories": ["Sports"],
+  "webpage_url": "https://www.youtube.com/watch?v=abc123",
+  "availability": "public",
+  "subtitles": {
+    "en": [
+      {
+        "ext": "vtt",
+        "url": "https://example.com/captions.vtt"
+      }
+    ]
+  },
+  "automatic_captions": {}
+}
+
