@@ -1,0 +1,36 @@
+{
+  "final_url": "https://www.budgetbytes.com/category/recipes/vegetarian/",
+  "headers": {
+    "content-length": null,
+    "content-type": "text/html; charset=UTF-8",
+    "etag": null,
+    "last-modified": "Fri, 19 Jun 2026 13:31:38 GMT"
+  },
+  "requested_url": "https://www.budgetbytes.com/category/recipes/vegetarian/",
+  "trafilatura_metadata": {
+    "content_type": "text/html; charset=UTF-8",
+    "trafilatura": {
+      "author": null,
+      "body": "<Element body at 0x10e3044c0>",
+      "categories": [],
+      "comments": null,
+      "commentsbody": "<Element body at 0x10e3041c0>",
+      "date": "2026-06-19",
+      "description": "Over 400 budget-friendly vegetarian recipes for breakfast, lunch, dinner, snacks, and more. Easy, delicious, and meat-free!",
+      "filedate": "2026-06-19",
+      "fingerprint": null,
+      "hostname": "budgetbytes.com",
+      "id": null,
+      "image": null,
+      "language": null,
+      "license": null,
+      "pagetype": "article",
+      "raw_text": null,
+      "sitename": "Budget Bytes",
+      "tags": [],
+      "text": null,
+      "title": "Vegetarian Recipes Archives",
+      "url": "https://www.budgetbytes.com/category/recipes/vegetarian/"
+    }
+  }
+}

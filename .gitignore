@@ -7,12 +7,6 @@ __pycache__/
 .env
 .shelf/
 *.sqlite3
-evidence/run-*/
-evidence/ingest-*/
-evidence/manual-*/
-evidence/output.json
-evidence/items.jsonl
-evidence/traces.jsonl
 dist/
 build/
 docs/

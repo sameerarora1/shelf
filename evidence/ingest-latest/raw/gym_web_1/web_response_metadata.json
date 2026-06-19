@@ -1,0 +1,36 @@
+{
+  "final_url": "https://en.wikipedia.org/wiki/Bodyweight_exercise",
+  "headers": {
+    "content-length": "44624",
+    "content-type": "text/html; charset=UTF-8",
+    "etag": null,
+    "last-modified": "Fri, 19 Jun 2026 16:43:25 GMT"
+  },
+  "requested_url": "https://en.wikipedia.org/wiki/Bodyweight_exercise",
+  "trafilatura_metadata": {
+    "content_type": "text/html; charset=UTF-8",
+    "trafilatura": {
+      "author": "Authority control databases National Japan Other NARA",
+      "body": "<Element body at 0x10de73ec0>",
+      "categories": [],
+      "comments": null,
+      "commentsbody": "<Element body at 0x10d49dfc0>",
+      "date": "2003-02-27",
+      "description": null,
+      "filedate": "2026-06-19",
+      "fingerprint": null,
+      "hostname": "wikipedia.org",
+      "id": null,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Planche.jpg/1280px-Planche.jpg",
+      "language": null,
+      "license": null,
+      "pagetype": "website",
+      "raw_text": null,
+      "sitename": "Wikimedia Foundation, Inc.",
+      "tags": [],
+      "text": null,
+      "title": "Calisthenics - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Calisthenics"
+    }
+  }
+}
