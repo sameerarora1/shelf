@@ -9,6 +9,7 @@ from typing import Annotated
 import typer
 
 from shelf.analysis.deterministic import DeterministicAnalyzer
+from shelf.analysis.evaluate import evaluate_analysis_quality
 from shelf.analysis.openai_provider import OpenAIAnalyzer
 from shelf.config import Settings, ensure_project_dirs
 from shelf.orchestrator import ShelfPipeline
@@ -46,7 +47,12 @@ def ingest(
     if run_dir.exists():
         shutil.rmtree(run_dir)
     (run_dir / "raw").mkdir(parents=True, exist_ok=True)
-    pipeline = ShelfPipeline(settings, analyzer=_analyzer(settings), organizer=Organizer())
+    pipeline = ShelfPipeline(
+        settings,
+        analyzer=_analyzer(settings),
+        organizer=Organizer(),
+        progress=typer.echo,
+    )
     result = pipeline.run_csv(input_file, raw_dir=run_dir / "raw")
     store = SQLiteStore(settings.sqlite_path)
     store.clear()
@@ -95,11 +101,22 @@ def evaluate(
     typer.echo(json.dumps({"metrics": metrics, "results": details}, indent=2, sort_keys=True))
 
 
+@app.command("evaluate-analysis")
+def evaluate_analysis() -> None:
+    """Evaluate analyzer output quality and trace coverage for persisted items."""
+    settings = Settings.from_env()
+    store = SQLiteStore(settings.sqlite_path)
+    metrics, details = evaluate_analysis_quality(store.list_items(), store.list_traces())
+    typer.echo(json.dumps({"metrics": metrics, "results": details}, indent=2, sort_keys=True))
+
+
 def _analyzer(settings: Settings):
-    if settings.analyzer == "openai":
-        analyzer = OpenAIAnalyzer(settings.openai_model)
-        if analyzer.enabled:
-            return analyzer
+    if settings.analyzer in {"openrouter", "openai"}:
+        return OpenAIAnalyzer(
+            settings.openrouter_model,
+            base_url=settings.openrouter_base_url,
+            timeout_seconds=settings.openrouter_timeout_seconds,
+        )
     return DeterministicAnalyzer()
 
 

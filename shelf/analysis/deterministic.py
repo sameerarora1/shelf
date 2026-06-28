@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from collections.abc import Sequence
 
 from shelf.analysis.base import AnalysisResult, AnalyzerBackend
+from shelf.analysis.categories import CategoryDescription
 from shelf.models import SavedItem
 
 TOPIC_KEYWORDS = {
@@ -81,7 +83,11 @@ STOPWORDS = {
 class DeterministicAnalyzer(AnalyzerBackend):
     mode = "deterministic"
 
-    def analyze(self, item: SavedItem) -> AnalysisResult:
+    def analyze(
+        self,
+        item: SavedItem,
+        existing_categories: Sequence[str | CategoryDescription] | None = None,
+    ) -> AnalysisResult:
         source_text = _source_text(item)
         tokens = _tokens(source_text)
         topics = _topics(tokens, item.theme_hint)
@@ -90,6 +96,7 @@ class DeterministicAnalyzer(AnalyzerBackend):
         content_type = _content_type(item, tokens)
         intent_tags = _intent_tags(item, topics, content_type)
         collection = _suggested_collection(topics, intent_tags, item.extraction_status)
+        category_action = "needs_review" if collection == "Needs Review" else "use_existing"
         notes = []
         if item.extracted_text:
             notes.append("summary derived from extracted text")
@@ -106,6 +113,9 @@ class DeterministicAnalyzer(AnalyzerBackend):
             content_type=content_type,
             intent_tags=intent_tags,
             suggested_collection=collection,
+            category_action=category_action,
+            category_confidence=0.7 if category_action == "use_existing" else 0.35,
+            category_reason=f"Deterministic fallback selected {collection}.",
             analysis_mode=self.mode,
             evidence_notes=notes,
         )

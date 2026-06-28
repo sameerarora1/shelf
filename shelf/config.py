@@ -11,6 +11,9 @@ except ImportError:  # pragma: no cover - dependency is declared but optional at
 
 
 DEFAULT_USER_AGENT = "ShelfCheckpoint1/0.1 (+https://github.com/infinityaurora6/shelf)"
+DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+DEFAULT_OPENROUTER_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free"
+DEFAULT_OPENROUTER_TIMEOUT_SECONDS = 30.0
 
 
 @dataclass(frozen=True)
@@ -20,7 +23,9 @@ class Settings:
     evidence_dir: Path
     sqlite_path: Path
     analyzer: str = "deterministic"
-    openai_model: str = "gpt-4.1-mini"
+    openrouter_base_url: str = DEFAULT_OPENROUTER_BASE_URL
+    openrouter_model: str = DEFAULT_OPENROUTER_MODEL
+    openrouter_timeout_seconds: float = DEFAULT_OPENROUTER_TIMEOUT_SECONDS
     http_timeout_seconds: float = 15.0
     http_max_redirects: int = 5
     http_max_bytes: int = 2_000_000
@@ -39,8 +44,16 @@ class Settings:
             sqlite_path=root / ".shelf" / "shelf.sqlite3",
             analyzer=os.getenv("SHELF_ANALYZER", "deterministic").strip().lower()
             or "deterministic",
-            openai_model=os.getenv("SHELF_OPENAI_MODEL", "gpt-4.1-mini").strip()
-            or "gpt-4.1-mini",
+            openrouter_base_url=os.getenv(
+                "OPENROUTER_BASE_URL",
+                DEFAULT_OPENROUTER_BASE_URL,
+            ).strip()
+            or DEFAULT_OPENROUTER_BASE_URL,
+            openrouter_model=os.getenv("OPENROUTER_MODEL", DEFAULT_OPENROUTER_MODEL).strip()
+            or DEFAULT_OPENROUTER_MODEL,
+            openrouter_timeout_seconds=float(
+                os.getenv("OPENROUTER_TIMEOUT_SECONDS", str(DEFAULT_OPENROUTER_TIMEOUT_SECONDS))
+            ),
             http_timeout_seconds=float(os.getenv("SHELF_HTTP_TIMEOUT_SECONDS", "15")),
             http_max_redirects=int(os.getenv("SHELF_HTTP_MAX_REDIRECTS", "5")),
             http_max_bytes=int(os.getenv("SHELF_HTTP_MAX_BYTES", "2000000")),
@@ -52,7 +65,10 @@ class Settings:
     def redacted_config(self) -> dict[str, str | int | float]:
         return {
             "analyzer": self.analyzer,
-            "openai_model_configured": bool(os.getenv("OPENAI_API_KEY")),
+            "openrouter_model": self.openrouter_model,
+            "openrouter_base_url": self.openrouter_base_url,
+            "openrouter_timeout_seconds": self.openrouter_timeout_seconds,
+            "openrouter_api_key_configured": bool(os.getenv("OPENROUTER_API_KEY")),
             "http_timeout_seconds": self.http_timeout_seconds,
             "http_max_redirects": self.http_max_redirects,
             "http_max_bytes": self.http_max_bytes,
@@ -66,4 +82,3 @@ def ensure_project_dirs(settings: Settings) -> None:
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     settings.evidence_dir.mkdir(parents=True, exist_ok=True)
     settings.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
-

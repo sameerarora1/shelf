@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -33,17 +34,26 @@ class ShelfPipeline:
         *,
         analyzer: AnalyzerBackend | None = None,
         organizer: Organizer | None = None,
+        progress: Callable[[str], None] | None = None,
     ) -> None:
         self.settings = settings
         self.analyzer = analyzer or DeterministicAnalyzer()
         self.organizer = organizer or Organizer()
+        self.progress = progress
 
     def run_csv(self, input_csv: Path, *, raw_dir: Path | None = None) -> PipelineResult:
         rows = read_url_rows(input_csv)
         recorder = TraceRecorder()
         items: list[SavedItem] = []
-        for row in rows:
-            item = self.process_row(row, recorder=recorder, raw_dir=raw_dir)
+        total = len(rows)
+        for index, row in enumerate(rows, start=1):
+            item = self.process_row(
+                row,
+                recorder=recorder,
+                raw_dir=raw_dir,
+                item_index=index,
+                total_items=total,
+            )
             items.append(item)
         return PipelineResult(items=items, traces=recorder.events)
 
@@ -53,12 +63,16 @@ class ShelfPipeline:
         *,
         recorder: TraceRecorder,
         raw_dir: Path | None = None,
+        item_index: int | None = None,
+        total_items: int | None = None,
     ) -> SavedItem:
         item_id = row.get("item_id") or _stable_item_id(row.get("url", ""))
         url = row.get("url", "").strip()
         theme_hint = row.get("theme_hint", "").strip()
         trace_id = str(uuid.uuid4())
+        progress_prefix = _progress_prefix(item_id, item_index, total_items)
 
+        self._progress(f"{progress_prefix}: triaging")
         with Timer() as timer:
             decision = classify_url(url)
         recorder.record(
@@ -77,6 +91,10 @@ class ShelfPipeline:
         )
 
         extractor = self._extractor_for_decision(decision)
+        self._progress(
+            f"{progress_prefix}: extracting with {type(extractor).__name__} "
+            f"({decision.source_type})"
+        )
         recorder.record(
             trace_id=trace_id,
             item_id=item_id,
@@ -123,13 +141,15 @@ class ShelfPipeline:
         )
 
         with Timer() as timer:
-            analysis = self.analyzer.analyze(item)
+            self._progress(f"{progress_prefix}: analyzing with {type(self.analyzer).__name__}")
+            analysis = self.analyzer.analyze(item, self.organizer.category_context())
         item.summary = analysis.summary
         item.topics = analysis.topics
         item.entities = analysis.entities
         item.content_type = analysis.content_type
         item.intent_tags = analysis.intent_tags
         item.analysis_mode = analysis.analysis_mode
+        item.collection = analysis.suggested_collection
         recorder.record(
             trace_id=trace_id,
             item_id=item_id,
@@ -145,8 +165,10 @@ class ShelfPipeline:
         )
 
         with Timer() as timer:
-            org_decision = self.organizer.assign(item)
+            self._progress(f"{progress_prefix}: assigning collection")
+            org_decision = self.organizer.assign(item, analysis)
         item.collection = org_decision.collection
+        self._progress(f"{progress_prefix}: assigned {item.collection}")
         recorder.record(
             trace_id=trace_id,
             item_id=item_id,
@@ -186,6 +208,10 @@ class ShelfPipeline:
             output_summary="pending store write",
         )
         return item
+
+    def _progress(self, message: str) -> None:
+        if self.progress is not None:
+            self.progress(f"Progress: {message}")
 
     def _extract(
         self,
@@ -314,3 +340,9 @@ def input_file_hash(path: Path) -> str:
 
 def _stable_item_id(url: str) -> str:
     return "item_" + hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
+
+
+def _progress_prefix(item_id: str, item_index: int | None, total_items: int | None) -> str:
+    if item_index is None or total_items is None:
+        return item_id
+    return f"[{item_index}/{total_items}] {item_id}"

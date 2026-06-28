@@ -12,3 +12,4 @@ build/
 docs/
 *.egg-info/
 .DS_Store
+evidence/
