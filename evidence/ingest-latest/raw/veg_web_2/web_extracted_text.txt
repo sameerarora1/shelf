@@ -31,6 +31,10 @@ $6.41 recipe /$0.17 servingCowboy Caviar
 $6.59 recipe / $0.66 servingGlazed Carrots
 $1.65 recipe / $0.41 servingCoconut Rice
 $2.44 recipe / $0.41 servingNewest Vegetarian Recipes
+Blueberry Cookies
+$4.54 recipe / $0.13 servingThese easy Blueberry Cookies are soft, chewy, and jammy with frozen blueberries, white chocolate chips, and a hint of cinnamon. No chilling needed!
+Vegan Meatballs
+$5.22 recipe / $0.65 servingThese Vegan Meatballs are made with lentils, mushrooms, walnuts, and sun-dried tomatoes for a cozy, totally plant-based, meatless dinner!
 Icebox Cake
 $14.14 recipe / $1.18 servingMake this chocolate strawberry Icebox Cake with 7 simple ingredients, no oven, and layers of chocolate graham crackers, strawberries, and whipped cream cheese filling!
 Cowboy Caviar
@@ -51,7 +55,3 @@ Angel Hair Pasta Pomodoro
 $5.21 recipe / $0.65 servingAngel Hair Pasta Pomodoro is an easy weeknight pasta recipe with tomatoes, olive oil, and herbs tossed with delicate noodles that cook in just 2 minutes!
 Carrot Cake Bars
 $3.90 recipe / $0.43 servingThis easy Carrot Cake Bars recipe with a cheesecake swirl is a simple spring dessert made with fresh carrots, brown sugar, cinnamon, and cream cheese!
-Hasselback Potatoes
-$3.45 recipe / $0.86 servingThese easy Hasselback Potatoes turn simple russets into crispy, golden, fan-cut potatoes with lots of room for your favorite toppings.
-Creamed Peas
-$2.21 recipe / $0.55 servingHomemade Creamed Peas are an old-fashioned side dish made with frozen peas in a simple creamy sauce. Perfect for weeknights, Easter, or holiday dinners!

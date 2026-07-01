@@ -4,14 +4,14 @@
     "content-length": null,
     "content-type": "text/html; charset=UTF-8",
     "etag": null,
-    "last-modified": "Fri, 19 Jun 2026 19:17:23 GMT"
+    "last-modified": "Wed, 01 Jul 2026 18:10:15 GMT"
   },
   "requested_url": "https://ohmyveggies.com/vegetable-and-chickpea-sheet-pan-meal/",
   "trafilatura_metadata": {
     "content_type": "text/html; charset=UTF-8",
     "trafilatura": {
       "author": "Nicole",
-      "body": "<Element body at 0x10d2a52c0>",
+      "body": "<Element body at 0x1167e2940>",
       "categories": [
         "Earth of Maria",
         "Gluten-free Vegan Recipes",
@@ -24,10 +24,10 @@
         "Vegetarian Recipes"
       ],
       "comments": null,
-      "commentsbody": "<Element body at 0x10d500700>",
+      "commentsbody": "<Element body at 0x1167e3ec0>",
       "date": "2021-04-22",
       "description": "This sheet pan meal with vegetables and chickpeas is amazing for vegan meal pep or a weeknight dinner that's effortless to make!",
-      "filedate": "2026-06-19",
+      "filedate": "2026-07-01",
       "fingerprint": null,
       "hostname": "ohmyveggies.com",
       "id": null,
