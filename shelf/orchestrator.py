@@ -12,6 +12,7 @@ from shelf.analysis.deterministic import DeterministicAnalyzer
 from shelf.config import Settings
 from shelf.decision_policy import UrlDecision, classify_url
 from shelf.extractors.base import ExtractionContext, ExtractorResult
+from shelf.extractors.instagram import InstagramPostExtractor
 from shelf.extractors.public_metadata import PublicMetadataExtractor
 from shelf.extractors.unsupported import UnsupportedExtractor
 from shelf.extractors.webpage import WebPageExtractor
@@ -272,7 +273,9 @@ class ShelfPipeline:
             return YouTubeExtractor(self.settings)
         if decision.source_type == "public_webpage":
             return WebPageExtractor(self.settings)
-        if decision.source_type in {"instagram_public", "x_public"}:
+        if decision.source_type == "instagram_public":
+            return InstagramPostExtractor(self.settings)
+        if decision.source_type == "x_public":
             return PublicMetadataExtractor(self.settings, decision.source_type)
         return UnsupportedExtractor(reason=decision.reason)
 

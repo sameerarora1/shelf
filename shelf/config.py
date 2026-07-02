@@ -31,6 +31,8 @@ class Settings:
     http_max_bytes: int = 2_000_000
     raw_html_max_chars: int = 120_000
     user_agent: str = DEFAULT_USER_AGENT
+    agent_reach_timeout_seconds: float = 30.0
+    agent_reach_instagram_command: str = ""
 
     @classmethod
     def from_env(cls, project_root: Path | None = None) -> Settings:
@@ -60,6 +62,13 @@ class Settings:
             raw_html_max_chars=int(os.getenv("SHELF_RAW_HTML_MAX_CHARS", "120000")),
             user_agent=os.getenv("SHELF_USER_AGENT", DEFAULT_USER_AGENT).strip()
             or DEFAULT_USER_AGENT,
+            agent_reach_timeout_seconds=float(
+                os.getenv("SHELF_AGENT_REACH_TIMEOUT_SECONDS", "30")
+            ),
+            agent_reach_instagram_command=os.getenv(
+                "SHELF_AGENT_REACH_INSTAGRAM_COMMAND",
+                "",
+            ).strip(),
         )
 
     def redacted_config(self) -> dict[str, str | int | float]:
@@ -74,6 +83,10 @@ class Settings:
             "http_max_bytes": self.http_max_bytes,
             "raw_html_max_chars": self.raw_html_max_chars,
             "user_agent": self.user_agent,
+            "agent_reach_timeout_seconds": self.agent_reach_timeout_seconds,
+            "agent_reach_instagram_command_configured": bool(
+                self.agent_reach_instagram_command
+            ),
             "sqlite_path": str(self.sqlite_path),
         }
 
