@@ -14,6 +14,7 @@ DEFAULT_USER_AGENT = "ShelfCheckpoint1/0.1 (+https://github.com/infinityaurora6/
 DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 DEFAULT_OPENROUTER_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free"
 DEFAULT_OPENROUTER_TIMEOUT_SECONDS = 30.0
+DEFAULT_AGENT_REACH_X_COMMAND = "twitter tweet {url} --json"
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,8 @@ class Settings:
     http_max_bytes: int = 2_000_000
     raw_html_max_chars: int = 120_000
     user_agent: str = DEFAULT_USER_AGENT
+    agent_reach_timeout_seconds: float = 30.0
+    agent_reach_x_command: str = DEFAULT_AGENT_REACH_X_COMMAND
 
     @classmethod
     def from_env(cls, project_root: Path | None = None) -> Settings:
@@ -60,6 +63,14 @@ class Settings:
             raw_html_max_chars=int(os.getenv("SHELF_RAW_HTML_MAX_CHARS", "120000")),
             user_agent=os.getenv("SHELF_USER_AGENT", DEFAULT_USER_AGENT).strip()
             or DEFAULT_USER_AGENT,
+            agent_reach_timeout_seconds=float(
+                os.getenv("SHELF_AGENT_REACH_TIMEOUT_SECONDS", "30")
+            ),
+            agent_reach_x_command=os.getenv(
+                "SHELF_AGENT_REACH_X_COMMAND",
+                DEFAULT_AGENT_REACH_X_COMMAND,
+            ).strip()
+            or DEFAULT_AGENT_REACH_X_COMMAND,
         )
 
     def redacted_config(self) -> dict[str, str | int | float]:
@@ -74,6 +85,8 @@ class Settings:
             "http_max_bytes": self.http_max_bytes,
             "raw_html_max_chars": self.raw_html_max_chars,
             "user_agent": self.user_agent,
+            "agent_reach_timeout_seconds": self.agent_reach_timeout_seconds,
+            "agent_reach_x_command_configured": bool(self.agent_reach_x_command),
             "sqlite_path": str(self.sqlite_path),
         }
 

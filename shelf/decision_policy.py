@@ -108,7 +108,7 @@ def classify_url(url: str) -> UrlDecision:
         strategy = "PublicMetadataExtractor"
     elif host in X_HOSTS or registered in {"x.com", "twitter.com"}:
         source_type = "x_public"
-        strategy = "PublicMetadataExtractor"
+        strategy = "XPostExtractor"
     else:
         source_type = "public_webpage"
         strategy = "WebPageExtractor"
@@ -122,4 +122,3 @@ def classify_url(url: str) -> UrlDecision:
         decision="accept",
         reason=f"Routed {host} to {strategy}",
     )
-
