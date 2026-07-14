@@ -99,6 +99,7 @@ class OpenAIAnalyzer(AnalyzerBackend):
         self._client = OpenAI(
             base_url=self.base_url,
             api_key=resolved_api_key,
+            timeout=self.timeout_seconds,
         )
 
     @property

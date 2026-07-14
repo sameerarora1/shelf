@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
+from shelf.analysis.compare import default_model_specs, render_markdown_report, run_comparison
 from shelf.analysis.deterministic import DeterministicAnalyzer
 from shelf.analysis.evaluate import evaluate_analysis_quality
 from shelf.analysis.openai_provider import OpenAIAnalyzer
@@ -108,6 +110,95 @@ def evaluate_analysis() -> None:
     store = SQLiteStore(settings.sqlite_path)
     metrics, details = evaluate_analysis_quality(store.list_items(), store.list_traces())
     typer.echo(json.dumps({"metrics": metrics, "results": details}, indent=2, sort_keys=True))
+
+
+@app.command("compare-llms")
+def compare_llms(
+    input_file: Annotated[
+        Path,
+        typer.Argument(help="CSV with item_id,url,theme_hint,notes"),
+    ] = Path("data/urls.csv"),
+    queries_csv: Annotated[
+        Path,
+        typer.Option("--queries", help="Labeled retrieval queries CSV"),
+    ] = Path("data/retrieval_queries.csv"),
+    models: Annotated[
+        str | None,
+        typer.Option(
+            "--models",
+            help=(
+                "Comma-separated backends: 'deterministic', 'unavailable', "
+                "and/or OpenRouter model ids. Defaults to the configured model, "
+                "openrouter/free, tencent/hy3:free, poolside/laguna-m.1:free, "
+                "plus baseline/fallback."
+            ),
+        ),
+    ] = None,
+    report_out: Annotated[
+        Path | None,
+        typer.Option("--report-out", help="Directory for comparison evidence output"),
+    ] = None,
+) -> None:
+    """Compare the deterministic, OpenRouter, and fallback analyzers on one corpus.
+
+    Extraction runs once so every analyzer is scored on an identical corpus.
+    Emits acceptance-quality rates, TF-IDF Precision@3/MRR, and per-item
+    analyzer latency for each backend, then persists sanitized evidence
+    (comparison report, redacted config, shared traces, and per-backend
+    re-analyzed items). This is the Checkpoint 3 comparison deliverable.
+    """
+    settings = Settings.from_env()
+    ensure_project_dirs(settings)
+    run_dir = report_out or settings.evidence_dir / "compare-latest"
+    if run_dir.exists():
+        shutil.rmtree(run_dir)
+    (run_dir / "raw").mkdir(parents=True, exist_ok=True)
+    if models:
+        specs = [spec.strip() for spec in models.split(",") if spec.strip()]
+    else:
+        specs = default_model_specs(settings)
+    run = run_comparison(
+        settings,
+        input_file,
+        queries_csv,
+        specs,
+        raw_dir=run_dir / "raw",
+        progress=typer.echo,
+    )
+    typer.echo(json.dumps(run.report, indent=2, sort_keys=True))
+    _write_comparison_evidence(run_dir, run)
+    typer.echo(f"Comparison evidence written to {run_dir}")
+
+
+def _write_comparison_evidence(target_dir: Path, run) -> None:
+    target_dir.mkdir(parents=True, exist_ok=True)
+    (target_dir / "comparison.json").write_text(
+        json.dumps(run.report, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    (target_dir / "comparison.md").write_text(
+        render_markdown_report(run.report),
+        encoding="utf-8",
+    )
+    (target_dir / "config.json").write_text(
+        json.dumps(run.report.get("config", {}), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    if run.base_traces:
+        traces_jsonl = "\n".join(trace.model_dump_json() for trace in run.base_traces) + "\n"
+        (target_dir / "traces.jsonl").write_text(traces_jsonl, encoding="utf-8")
+    for row in run.rows:
+        if row.status != "evaluated" or not row.reanalyzed_items:
+            continue
+        backend_dir = target_dir / _slug(row.spec)
+        backend_dir.mkdir(parents=True, exist_ok=True)
+        items_jsonl = "\n".join(item.model_dump_json() for item in row.reanalyzed_items) + "\n"
+        (backend_dir / "items.jsonl").write_text(items_jsonl, encoding="utf-8")
+
+
+def _slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "_", value.strip().lower()).strip("_")
+    return slug or "backend"
 
 
 def _analyzer(settings: Settings):
