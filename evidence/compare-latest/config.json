@@ -1,0 +1,13 @@
+{
+  "analyzer": "openrouter",
+  "http_max_bytes": 2000000,
+  "http_max_redirects": 5,
+  "http_timeout_seconds": 15.0,
+  "openrouter_api_key_configured": true,
+  "openrouter_base_url": "https://openrouter.ai/api/v1",
+  "openrouter_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "openrouter_timeout_seconds": 30.0,
+  "raw_html_max_chars": 120000,
+  "sqlite_path": "/Users/sameerarora/Desktop/GT2026Su/CS4365/cs4365-shelf/shelf/.claude/worktrees/agent-aedc90905c4c02e01/.shelf/shelf.sqlite3",
+  "user_agent": "ShelfCheckpoint1/0.1 (+https://github.com/infinityaurora6/shelf)"
+}

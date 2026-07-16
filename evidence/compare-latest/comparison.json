@@ -1,0 +1,117 @@
+{
+  "config": {
+    "analyzer": "openrouter",
+    "http_max_bytes": 2000000,
+    "http_max_redirects": 5,
+    "http_timeout_seconds": 15.0,
+    "openrouter_api_key_configured": true,
+    "openrouter_base_url": "https://openrouter.ai/api/v1",
+    "openrouter_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "openrouter_timeout_seconds": 30.0,
+    "raw_html_max_chars": 120000,
+    "sqlite_path": "/Users/sameerarora/Desktop/GT2026Su/CS4365/cs4365-shelf/shelf/.claude/worktrees/agent-aedc90905c4c02e01/.shelf/shelf.sqlite3",
+    "user_agent": "ShelfCheckpoint1/0.1 (+https://github.com/infinityaurora6/shelf)"
+  },
+  "dataset": "data/urls.csv",
+  "generated_at": "2026-07-15T23:46:52.411841+00:00",
+  "item_count": 10,
+  "leaderboard": {
+    "best_mrr": 1.0,
+    "best_overall_pass_rate": 1.0,
+    "best_precision_at_3": 0.7407407407407407,
+    "best_spec": "deterministic"
+  },
+  "model_specs": [
+    "deterministic",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "unavailable"
+  ],
+  "models": [
+    {
+      "analysis_modes": {
+        "deterministic": 10
+      },
+      "analyzer_mode": "deterministic",
+      "evaluated_query_count": 9,
+      "failure_reasons": [],
+      "fallback_behavior_valid_rate": 1.0,
+      "fallback_notes": [],
+      "fallback_to_deterministic": 0,
+      "item_count": 10,
+      "max_analysis_latency_ms": 1.514,
+      "mean_analysis_latency_ms": 0.601,
+      "metadata_complete_rate": 1.0,
+      "mrr": 1.0,
+      "overall_pass_rate": 1.0,
+      "precision_at_3": 0.7407407407407407,
+      "retrieval_status": "evaluated",
+      "skip_reason": null,
+      "spec": "deterministic",
+      "status": "evaluated",
+      "structured_output_valid_rate": 1.0,
+      "tag_agreement_rate": 1.0,
+      "trace_coverage_rate": 1.0
+    },
+    {
+      "analysis_modes": {
+        "openrouter": 10
+      },
+      "analyzer_mode": "openrouter",
+      "evaluated_query_count": 9,
+      "failure_reasons": [
+        "expected topic missing: exercise",
+        "expected topic missing: investment",
+        "expected topic missing: vegetarian",
+        "fallback item lacks needs-review intent tag",
+        "metadata-only item lacks metadata-only intent tag",
+        "summary is missing"
+      ],
+      "fallback_behavior_valid_rate": 0.7,
+      "fallback_notes": [],
+      "fallback_to_deterministic": 0,
+      "item_count": 10,
+      "max_analysis_latency_ms": 12429.031,
+      "mean_analysis_latency_ms": 8079.639,
+      "metadata_complete_rate": 1.0,
+      "mrr": 1.0,
+      "overall_pass_rate": 0.1,
+      "precision_at_3": 0.6666666666666666,
+      "retrieval_status": "evaluated",
+      "skip_reason": null,
+      "spec": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "status": "evaluated",
+      "structured_output_valid_rate": 0.8,
+      "tag_agreement_rate": 0.1,
+      "trace_coverage_rate": 1.0
+    },
+    {
+      "analysis_modes": {
+        "deterministic": 10
+      },
+      "analyzer_mode": "openrouter",
+      "evaluated_query_count": 9,
+      "failure_reasons": [],
+      "fallback_behavior_valid_rate": 1.0,
+      "fallback_notes": [
+        "OpenRouter analyzer failed; deterministic fallback used: OpenRouterRequestError"
+      ],
+      "fallback_to_deterministic": 10,
+      "item_count": 10,
+      "max_analysis_latency_ms": 2.279,
+      "mean_analysis_latency_ms": 0.816,
+      "metadata_complete_rate": 1.0,
+      "mrr": 1.0,
+      "overall_pass_rate": 1.0,
+      "precision_at_3": 0.7407407407407407,
+      "retrieval_status": "evaluated",
+      "skip_reason": null,
+      "spec": "unavailable",
+      "status": "evaluated",
+      "structured_output_valid_rate": 1.0,
+      "tag_agreement_rate": 1.0,
+      "trace_coverage_rate": 1.0
+    }
+  ],
+  "queries": "data/retrieval_queries.csv",
+  "trace_count": 83
+}

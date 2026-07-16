@@ -1,0 +1,54 @@
+{
+  "final_url": "https://ohmyveggies.com/vegetable-and-chickpea-sheet-pan-meal/",
+  "headers": {
+    "content-length": null,
+    "content-type": "text/html; charset=UTF-8",
+    "etag": null,
+    "last-modified": "Wed, 15 Jul 2026 20:49:11 GMT"
+  },
+  "requested_url": "https://ohmyveggies.com/vegetable-and-chickpea-sheet-pan-meal/",
+  "trafilatura_metadata": {
+    "content_type": "text/html; charset=UTF-8",
+    "trafilatura": {
+      "author": "Nicole",
+      "body": "<Element body at 0x10ab626c0>",
+      "categories": [
+        "Earth of Maria",
+        "Gluten-free Vegan Recipes",
+        "Vegan Dinner Recipes",
+        "Vegan Main Dishes",
+        "Vegan Meal Prep",
+        "Vegan Recipes",
+        "Vegan Weeknight Meals",
+        "Vegetarian Main Dishes",
+        "Vegetarian Recipes"
+      ],
+      "comments": null,
+      "commentsbody": "<Element body at 0x1078e3480>",
+      "date": "2021-04-22",
+      "description": "This sheet pan meal with vegetables and chickpeas is amazing for vegan meal pep or a weeknight dinner that's effortless to make!",
+      "filedate": "2026-07-15",
+      "fingerprint": null,
+      "hostname": "ohmyveggies.com",
+      "id": null,
+      "image": "https://ohmyveggies.com/wp-content/uploads/2022/02/Baking-tray-with-roasted-vegetables-and-chickpeas-720x1080.jpg",
+      "language": null,
+      "license": null,
+      "pagetype": "article",
+      "raw_text": null,
+      "sitename": "Oh My Veggies",
+      "tags": [
+        "Bell pepper",
+        "Broccolini",
+        "carrots",
+        "chickpeas",
+        "sheet pan meal",
+        "sweet potatoes",
+        "zucchini"
+      ],
+      "text": null,
+      "title": "Vegan Sheet Pan Dinner",
+      "url": "https://ohmyveggies.com/vegetable-and-chickpea-sheet-pan-meal/"
+    }
+  }
+}

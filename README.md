@@ -571,6 +571,35 @@ evidence/
 
 The same evaluator can compare deterministic and OpenRouter-backed analyzer runs because it reads normalized `SavedItem` records and trace events from SQLite.
 
+## Analyzer Comparison - Checkpoint 3 (this branch, `cp3-analyzer-comparison`)
+
+`python -m shelf.cli compare-llms` (adapted from the professor's
+`ai-suggestions/cp3` reference) extracts the mixed dataset once, then
+re-scores each analyzer backend on identical items using the acceptance
+evaluator, the retrieval evaluator, and per-item latency. It always includes
+an explicit `unavailable` backend — a real `OpenAIAnalyzer` wired to a stub
+client that always fails — so the deterministic-fallback path is measured
+rather than skipped.
+
+A real run was executed with `SHELF_ANALYZER=openrouter python -m shelf.cli
+compare-llms` against NVIDIA Nemotron-3-Ultra over the live 10-URL dataset and
+9 retrieval queries. The API key, `.env` contents, and auth headers are not
+present in anything committed. Results, persisted under
+`evidence/compare-latest/` (`comparison.md`, `comparison.json`,
+`config.json`, per-backend `items.jsonl`, `traces.jsonl`):
+
+| Backend | Acceptance | Structured-output | Tag agreement | Fallback validity | Precision@3 | MRR | Fallback count | Mean latency |
+|---|---|---|---|---|---|---|---|---|
+| deterministic | 1.00 | 1.00 | 1.00 | 1.00 | 0.741 | 1.00 | 0/10 | 0.6ms |
+| nemotron (real OpenRouter run) | 0.10 | 0.80 | 0.10 | 0.70 | 0.667 | 1.00 | 0/10 | 8079.6ms |
+| unavailable (forced fallback) | 1.00 | 1.00 | 1.00 | 1.00 | 0.741 | 1.00 | 10/10 | 0.8ms |
+
+Nemotron's lower acceptance score mainly reflects vocabulary mismatch against
+the token-based expected-topic checks (e.g. "sheet pan meals" vs. the expected
+keyword), not a broken analyzer path — a genuine deterministic-vs-LLM tradeoff,
+reported here rather than hidden. 37 tests pass on this branch (8 new); `ruff
+check .` is clean. This branch is not merged into `main`.
+
 ## Supported Sources
 
 - YouTube public URLs use `shelf.extractors.youtube.YouTubeExtractor`, which calls
