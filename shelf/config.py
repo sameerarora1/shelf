@@ -31,6 +31,12 @@ class Settings:
     http_max_bytes: int = 2_000_000
     raw_html_max_chars: int = 120_000
     user_agent: str = DEFAULT_USER_AGENT
+    agent_reach_timeout_seconds: float = 30.0
+    agent_reach_instagram_command: str = ""
+    opencli_bin: str = ""
+    opencli_instagram_session: str = "shelf-ig"
+    opencli_browser_window: str = "background"
+    opencli_timeout_seconds: float = 60.0
 
     @classmethod
     def from_env(cls, project_root: Path | None = None) -> Settings:
@@ -60,6 +66,27 @@ class Settings:
             raw_html_max_chars=int(os.getenv("SHELF_RAW_HTML_MAX_CHARS", "120000")),
             user_agent=os.getenv("SHELF_USER_AGENT", DEFAULT_USER_AGENT).strip()
             or DEFAULT_USER_AGENT,
+            agent_reach_timeout_seconds=float(
+                os.getenv("SHELF_AGENT_REACH_TIMEOUT_SECONDS", "30")
+            ),
+            agent_reach_instagram_command=os.getenv(
+                "SHELF_AGENT_REACH_INSTAGRAM_COMMAND",
+                "",
+            ).strip(),
+            opencli_bin=os.getenv("SHELF_OPENCLI_BIN", "").strip(),
+            opencli_instagram_session=os.getenv(
+                "SHELF_OPENCLI_INSTAGRAM_SESSION",
+                "shelf-ig",
+            ).strip()
+            or "shelf-ig",
+            opencli_browser_window=os.getenv(
+                "SHELF_OPENCLI_BROWSER_WINDOW",
+                "background",
+            ).strip()
+            or "background",
+            opencli_timeout_seconds=float(
+                os.getenv("SHELF_OPENCLI_TIMEOUT_SECONDS", "60")
+            ),
         )
 
     def redacted_config(self) -> dict[str, str | int | float]:
@@ -74,6 +101,14 @@ class Settings:
             "http_max_bytes": self.http_max_bytes,
             "raw_html_max_chars": self.raw_html_max_chars,
             "user_agent": self.user_agent,
+            "agent_reach_timeout_seconds": self.agent_reach_timeout_seconds,
+            "agent_reach_instagram_command_configured": bool(
+                self.agent_reach_instagram_command
+            ),
+            "opencli_bin_configured": bool(self.opencli_bin),
+            "opencli_instagram_session": self.opencli_instagram_session,
+            "opencli_browser_window": self.opencli_browser_window,
+            "opencli_timeout_seconds": self.opencli_timeout_seconds,
             "sqlite_path": str(self.sqlite_path),
         }
 

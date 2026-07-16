@@ -1,0 +1,30 @@
+{
+  "backend": "opencli",
+  "commands": [
+    "opencli browser shelf-ig-live open https://www.instagram.com/p/DXhllvWCFlI/ --window background",
+    "opencli browser shelf-ig-live extract"
+  ],
+  "extraction_status": "success",
+  "logged_in": true,
+  "parsed": {
+    "author": "thelegacyinvestingshow",
+    "canonical_url": "https://www.instagram.com/thelegacyinvestingshow/reel/DXhllvWCFlI/",
+    "caption": "Kids get framed as the most expensive thing you\u2019ll ever do. Nobody mentions the other side of the ledger. The tax code actually rewards parents who know where to look. Between credits, deductions, and accounts you can open in their name, a high-income family with 2 kids can legally keep $15K-$30K more every year. \u2192 Here is the stack working together in one household: \u25b8 Child Tax Credit = $4,000 off the bill for 2 kids under 17 \u25b8 Dependent Care FSA = $1,600 saved in a 32% bracket on $5K of pre-tax childcare \u25b8 Dependent Care Credit = another $1,200-$2,100 depending on income \u25b8 Head of Household (if single) = ~$8K bigger standard deduction \u25b8 Kids on payroll = up to $16,100 per child deducted from the business, $0 tax to the child \u25b8 Custodial Roth IRA = their earned income funds a tax-free retirement account before they can drive \u25b8 529 plan = state deduction now, tax-free growth, tax-free withdrawals for education \u25b8 HSA for dependents = their medical bills come out of a triple-tax-advantaged account \u25b8 Adoption Tax Credit = up to ~$16,800 per adoption \u2192 What we actually run for our boys: \\- Both on payroll for real work like shredding, filming content, office help \\- Custodial Roth IRAs opened the week they had earned income \\- $50/day Bitcoin DCA running automatically for each son via River \\- Invested in VTI, VOO, QQQ inside the Roth accounts \u2192 The structure does three things at once: 1\\. Reduces our taxable income today 2\\. Builds tax-advantaged accounts in their names for tomorrow 3\\. Creates a financial education they\u2019ll have before they graduate high school Rich families don\u2019t pay less tax because they earn differently. They pay less because they structure differently. Every strategy above is in the tax code, backed by IRS rules, and documented on my own filings through a clean field audit. If you have kids and you\u2019re not running at least a couple of these, your CPA is costing you more than they save you. Talk to a qualified CPA and attorney before implementing any of this. Not financial advice. Follow along for more.",
+    "comment_count_display": null,
+    "display_date": "April 24",
+    "fields_found": [
+      "canonical_url",
+      "display_date",
+      "author",
+      "relative_time",
+      "caption"
+    ],
+    "like_count_display": null,
+    "media_type": "reel",
+    "notes": [
+      "like/comment counts not shown in a parseable concatenated form (non-reel or hidden)"
+    ],
+    "relative_time": "11w"
+  },
+  "returncode": 0
+}

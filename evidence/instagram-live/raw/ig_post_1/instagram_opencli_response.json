@@ -1,0 +1,30 @@
+{
+  "backend": "opencli",
+  "commands": [
+    "opencli browser shelf-ig-live open https://www.instagram.com/p/DWxmSwTDFk2/ --window background",
+    "opencli browser shelf-ig-live extract"
+  ],
+  "extraction_status": "success",
+  "logged_in": true,
+  "parsed": {
+    "author": "brycenwood.ai",
+    "canonical_url": "https://www.instagram.com/brycenwood.ai/reel/DWxmSwTDFk2/",
+    "caption": "ChatGPT is recommending my vehicle wrap shop to people searching for wraps in Utah. I didn\u2019t pay for it. I set it up with one file. It\u2019s called llms.txt. It sits on your website and tells AI assistants what your business does, where you are, and why someone should choose you. It took me 5 minutes to create with Claude Code. Most businesses don\u2019t know it exists. My website also went from 7 visitors a day to 150 after I rebuilt it. No ads. No agency. I\u2019ll show you how. How long before every business has one of these? #chatgpt #vibecoding #aimarketing #claudecode #smallbusiness",
+    "comment_count_display": "13.6K",
+    "display_date": "April 5",
+    "fields_found": [
+      "canonical_url",
+      "display_date",
+      "author",
+      "relative_time",
+      "caption",
+      "like_count",
+      "comment_count"
+    ],
+    "like_count_display": "57.7K",
+    "media_type": "reel",
+    "notes": [],
+    "relative_time": "14w"
+  },
+  "returncode": 0
+}

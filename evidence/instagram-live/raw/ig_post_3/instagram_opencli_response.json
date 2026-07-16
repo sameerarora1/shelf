@@ -1,0 +1,30 @@
+{
+  "backend": "opencli",
+  "commands": [
+    "opencli browser shelf-ig-live open https://www.instagram.com/p/DQJCgrUDe9-/ --window background",
+    "opencli browser shelf-ig-live extract"
+  ],
+  "extraction_status": "success",
+  "logged_in": true,
+  "parsed": {
+    "author": "vardy.mov",
+    "canonical_url": "https://www.instagram.com/vardy.mov/reel/DQJCgrUDe9-/",
+    "caption": "you\u2019ve been asking for it\u2026 here\u2019s my condensed book recs comment list to get a cool reading tracker",
+    "comment_count_display": "4.6K",
+    "display_date": "October 23, 2025",
+    "fields_found": [
+      "canonical_url",
+      "display_date",
+      "author",
+      "relative_time",
+      "caption",
+      "like_count",
+      "comment_count"
+    ],
+    "like_count_display": "10.2K",
+    "media_type": "reel",
+    "notes": [],
+    "relative_time": "37w"
+  },
+  "returncode": 0
+}

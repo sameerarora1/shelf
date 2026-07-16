@@ -1,0 +1,30 @@
+{
+  "backend": "opencli",
+  "commands": [
+    "opencli browser shelf-ig-live open https://www.instagram.com/p/DZngZHzFUCL/?img_index=1 --window background",
+    "opencli browser shelf-ig-live extract"
+  ],
+  "extraction_status": "success",
+  "logged_in": true,
+  "parsed": {
+    "author": "theedgarr",
+    "canonical_url": "https://www.instagram.com/theedgarr/p/DZngZHzFUCL/",
+    "caption": "Here are three videos that can help you improve your taste as a software developer. You will learn good practices, useful patterns, and simple tips to build better apps. Save this post and watch them later.",
+    "comment_count_display": null,
+    "display_date": "June 15",
+    "fields_found": [
+      "canonical_url",
+      "display_date",
+      "author",
+      "relative_time",
+      "caption"
+    ],
+    "like_count_display": null,
+    "media_type": "p",
+    "notes": [
+      "like/comment counts not shown in a parseable concatenated form (non-reel or hidden)"
+    ],
+    "relative_time": "4w"
+  },
+  "returncode": 0
+}

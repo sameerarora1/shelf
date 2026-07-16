@@ -1,0 +1,7 @@
+{
+  "backend": "opencli",
+  "doctor_error_code": "opencli_not_installed",
+  "doctor_error_message": "opencli CLI is not resolvable. Install it (npm i -g opencli), ensure Node.js >= 20 is active (e.g. `nvm use 22`), or set SHELF_OPENCLI_BIN to the absolute binary path.",
+  "logged_in": false,
+  "message": "opencli CLI is not resolvable. Install it (npm i -g opencli), ensure Node.js >= 20 is active (e.g. `nvm use 22`), or set SHELF_OPENCLI_BIN to the absolute binary path."
+}

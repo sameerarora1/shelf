@@ -1,0 +1,30 @@
+{
+  "backend": "opencli",
+  "commands": [
+    "opencli browser shelf-ig-live open https://www.instagram.com/p/DYMvMBtDpyb/ --window background",
+    "opencli browser shelf-ig-live extract"
+  ],
+  "extraction_status": "success",
+  "logged_in": true,
+  "parsed": {
+    "author": "socialtypro",
+    "canonical_url": "https://www.instagram.com/socialtypro/p/DYMvMBtDpyb/",
+    "caption": "Don't pay for Higgsfield, use Syllaby Don't pay for Notion Al, use Obsidian Don't pay for Midjourney, use Leonardo Al Don't pay for Jasper Al, use ChatGPT Don't pay for Grammarly Premium, use LanguageTool Don't pay for Adobe, use Canva Pro Don't pay for Ahrefs, use Ubersuggest Don't pay for Zapier, use Make Don't pay for Calendly, use Cal Don't pay for ClickFunnels, use Systeme io Don't pay for Descript, use CapCut Don't pay for Dropbox, use Google Drive Don't pay for Zoom, use Google Meet Don't pay for Figma Pro, use Penpot Don't pay for HubSpot, use GoHighLevel (SAVE THIS before it disappears)",
+    "comment_count_display": null,
+    "display_date": "May 11",
+    "fields_found": [
+      "canonical_url",
+      "display_date",
+      "author",
+      "relative_time",
+      "caption"
+    ],
+    "like_count_display": null,
+    "media_type": "p",
+    "notes": [
+      "like/comment counts not shown in a parseable concatenated form (non-reel or hidden)"
+    ],
+    "relative_time": "9w"
+  },
+  "returncode": 0
+}
