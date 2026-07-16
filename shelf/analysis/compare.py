@@ -272,6 +272,11 @@ def compare_analyzer_backends(
             ModelComparison(
                 spec=spec,
                 analyzer_mode=analyzer_mode,
+                status=(
+                    "fallback_only"
+                    if analyzer_mode != "deterministic" and fallback_hits == len(reanalyzed)
+                    else "evaluated"
+                ),
                 item_count=analysis_metrics.get("item_count", len(reanalyzed)),
                 analysis_modes=observed_modes,
                 fallback_to_deterministic=fallback_hits,
@@ -383,7 +388,10 @@ def _leaderboard(comparisons: list[ModelComparison]) -> dict[str, Any]:
     """Pick the strongest backend by acceptance pass-rate, then retrieval."""
     evaluated = [row for row in comparisons if row.status == "evaluated"]
     if not evaluated:
-        return {}
+        return {
+            "best_spec": None,
+            "note": "No provider generated a usable LLM response; fallback-only rows are excluded.",
+        }
     best = max(
         evaluated,
         key=lambda row: (row.overall_pass_rate, row.precision_at_3, row.mrr),
@@ -398,6 +406,7 @@ def _leaderboard(comparisons: list[ModelComparison]) -> dict[str, Any]:
 
 _MARKDOWN_COLUMNS = [
     ("spec", "Model / Backend"),
+    ("status", "Status"),
     ("analyzer_mode", "Mode"),
     ("overall_pass_rate", "Accept Pass"),
     ("structured_output_valid_rate", "Struct OK"),
@@ -444,8 +453,8 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         if row.get("status") == "skipped":
             cells = [
                 str(row.get("spec", "")),
-                str(row.get("analyzer_mode", "")),
                 "skipped",
+                str(row.get("analyzer_mode", "")),
             ]
             cells += ["-"] * (len(_MARKDOWN_COLUMNS) - len(cells))
             lines.append("| " + " | ".join(cells) + " |")
@@ -479,6 +488,11 @@ def _append_diagnostics(lines: list[str], report: dict[str, Any]) -> None:
     lines.append("")
     for row in diagnostic_rows:
         lines.append(f"- `{row.get('spec')}` ({row.get('analyzer_mode')})")
+        if row.get("status") == "fallback_only":
+            lines.append(
+                "  - result: all reported quality and retrieval metrics are from the "
+                "deterministic fallback, not provider generation."
+            )
         for note in row.get("fallback_notes", []):
             lines.append(f"  - fallback: {note}")
         for reason in row.get("failure_reasons", []):

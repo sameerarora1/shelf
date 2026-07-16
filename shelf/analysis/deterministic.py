@@ -5,7 +5,11 @@ from collections import Counter
 from collections.abc import Sequence
 
 from shelf.analysis.base import AnalysisResult, AnalyzerBackend
-from shelf.analysis.categories import CategoryDescription
+from shelf.analysis.categories import (
+    CategoryDescription,
+    category_names,
+    matching_existing_category,
+)
 from shelf.models import SavedItem
 
 TOPIC_KEYWORDS = {
@@ -36,6 +40,15 @@ TOPIC_KEYWORDS = {
         "market",
         "risk",
         "valuation",
+        "tax",
+        "taxes",
+        "credit",
+        "deduction",
+        "ira",
+        "roth",
+        "retirement",
+        "bitcoin",
+        "income",
     },
     "exercise": {
         "gym",
@@ -51,6 +64,24 @@ TOPIC_KEYWORDS = {
         "reps",
     },
 }
+
+CURATED_COLLECTION_RULES = (
+    (
+        "AI and LLM Applications",
+        {"ai", "chatgpt", "claude", "llm", "llms", "midjourney", "leonardo"},
+        "AI or LLM tools and applications are explicitly discussed.",
+    ),
+    (
+        "Books and Reading",
+        {"book", "books", "reading", "reader", "recommendations"},
+        "The content is about books, reading, or reading recommendations.",
+    ),
+    (
+        "Software Development",
+        {"developer", "developers", "software", "coding", "code", "apps", "programming"},
+        "The content is about software development practices or tools.",
+    ),
+)
 
 STOPWORDS = {
     "about",
@@ -95,8 +126,13 @@ class DeterministicAnalyzer(AnalyzerBackend):
         entities = _entities(source_text)
         content_type = _content_type(item, tokens)
         intent_tags = _intent_tags(item, topics, content_type)
-        collection = _suggested_collection(topics, intent_tags, item.extraction_status)
-        category_action = "needs_review" if collection == "Needs Review" else "use_existing"
+        collection, category_action, category_reason = _suggested_collection(
+            topics,
+            intent_tags,
+            item.extraction_status,
+            source_text,
+            existing_categories,
+        )
         notes = []
         if item.extracted_text:
             notes.append("summary derived from extracted text")
@@ -114,8 +150,8 @@ class DeterministicAnalyzer(AnalyzerBackend):
             intent_tags=intent_tags,
             suggested_collection=collection,
             category_action=category_action,
-            category_confidence=0.7 if category_action == "use_existing" else 0.35,
-            category_reason=f"Deterministic fallback selected {collection}.",
+            category_confidence=0.7 if category_action == "use_existing" else 0.6,
+            category_reason=category_reason,
             analysis_mode=self.mode,
             evidence_notes=notes,
         )
@@ -229,13 +265,44 @@ def _intent_tags(item: SavedItem, topics: list[str], content_type: str) -> list[
     return tags[:8]
 
 
-def _suggested_collection(topics: list[str], intent_tags: list[str], status: str) -> str:
+def _suggested_collection(
+    topics: list[str],
+    intent_tags: list[str],
+    status: str,
+    source_text: str,
+    existing_categories: Sequence[str | CategoryDescription] | None,
+) -> tuple[str, str, str]:
     if status == "metadata_only":
-        return "Metadata Only"
+        return "Metadata Only", "use_existing", "Metadata-only extraction is kept separate."
     if "vegetarian" in topics or "cook" in intent_tags:
-        return "Vegetarian Recipes"
+        return (
+            "Vegetarian Recipes",
+            "use_existing",
+            "Deterministic rules identified cooking content.",
+        )
     if "investment" in topics or "learn-investing" in intent_tags:
-        return "Investment Education"
+        return (
+            "Investment Education",
+            "use_existing",
+            "Deterministic rules identified investing or tax content.",
+        )
     if "exercise" in topics or "train" in intent_tags:
-        return "Gym and Exercise"
-    return "Needs Review"
+        return (
+            "Gym and Exercise",
+            "use_existing",
+            "Deterministic rules identified exercise content.",
+        )
+
+    token_set = set(_tokens(source_text))
+    known_categories = category_names(existing_categories or [])
+    for collection, keywords, reason in CURATED_COLLECTION_RULES:
+        if token_set & keywords:
+            existing = matching_existing_category(collection, known_categories)
+            if existing:
+                return existing, "use_existing", reason
+            return collection, "create_new", reason
+    return (
+        "Needs Review",
+        "needs_review",
+        "No deterministic collection rule matched with enough confidence.",
+    )

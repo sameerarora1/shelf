@@ -80,6 +80,7 @@ class OpenAIAnalyzer(AnalyzerBackend):
             timeout_seconds or os.getenv("OPENROUTER_TIMEOUT_SECONDS") or 30
         )
         self._fallback = fallback or DeterministicAnalyzer()
+        self._rate_limit_reason: str | None = None
 
         resolved_api_key = api_key if api_key is not None else os.getenv("OPENROUTER_API_KEY")
         if client is not None:
@@ -112,6 +113,15 @@ class OpenAIAnalyzer(AnalyzerBackend):
         existing_categories: Sequence[str | CategoryDescription] | None = None,
     ) -> AnalysisResult:
         category_context = list(existing_categories or DEFAULT_COLLECTIONS)
+        if self._rate_limit_reason:
+            return self._fallback_result(
+                item,
+                category_context,
+                (
+                    "OpenRouter analyzer skipped after a prior rate-limit response; "
+                    f"deterministic fallback used: {self._rate_limit_reason}"
+                ),
+            )
         try:
             parsed, decision = self._analyze_with_openrouter(item, category_context)
             return AnalysisResult(
@@ -137,12 +147,25 @@ class OpenAIAnalyzer(AnalyzerBackend):
             ValueError,
             json.JSONDecodeError,
         ) as exc:
-            result = self._fallback.analyze(item, category_context)
-            result.analysis_mode = "deterministic"
-            result.evidence_notes.append(
-                f"OpenRouter analyzer failed; deterministic fallback used: {type(exc).__name__}"
+            reason = _safe_error_summary(exc)
+            if _is_rate_limit_error(exc):
+                self._rate_limit_reason = reason
+            return self._fallback_result(
+                item,
+                category_context,
+                f"OpenRouter analyzer failed; deterministic fallback used: {reason}",
             )
-            return result
+
+    def _fallback_result(
+        self,
+        item: SavedItem,
+        category_context: Sequence[str | CategoryDescription],
+        note: str,
+    ) -> AnalysisResult:
+        result = self._fallback.analyze(item, category_context)
+        result.analysis_mode = "deterministic"
+        result.evidence_notes.append(note)
+        return result
 
     def _analyze_with_openrouter(
         self,
@@ -158,7 +181,7 @@ class OpenAIAnalyzer(AnalyzerBackend):
                 timeout=self.timeout_seconds,
             )
         except Exception as exc:  # noqa: BLE001
-            raise OpenRouterRequestError("OpenRouter API request failed.") from exc
+            raise OpenRouterRequestError(_safe_request_error_summary(exc)) from exc
 
         content = _response_content(response)
         payload = _json_payload(content)
@@ -295,3 +318,40 @@ def _strip_code_fence(text: str) -> str:
     if not text.startswith("```"):
         return text
     return re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE | re.DOTALL).strip()
+
+
+def _is_rate_limit_error(exc: Exception) -> bool:
+    return "http 429" in _safe_error_summary(exc).lower()
+
+
+def _safe_error_summary(exc: Exception) -> str:
+    """Return a short provider diagnostic that is safe to persist as evidence."""
+    if isinstance(exc, OpenRouterRequestError):
+        return f"{type(exc).__name__}: {_redact_error_text(str(exc))}"
+    return f"{type(exc).__name__}: {_redact_error_text(str(exc))}"
+
+
+def _safe_request_error_summary(exc: Exception) -> str:
+    status = getattr(exc, "status_code", None)
+    message = _provider_error_message(exc) or str(exc) or "request failed"
+    status_part = f"HTTP {status}; " if status is not None else ""
+    return f"{status_part}{type(exc).__name__}: {_redact_error_text(message)}"
+
+
+def _provider_error_message(exc: Exception) -> str:
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        error = body.get("error")
+        if isinstance(error, dict) and isinstance(error.get("message"), str):
+            return error["message"]
+        if isinstance(body.get("message"), str):
+            return body["message"]
+    return str(exc)
+
+
+def _redact_error_text(value: str) -> str:
+    text = re.sub(r"\s+", " ", value).strip()
+    text = re.sub(r"sk-or-v1-[A-Za-z0-9_-]+", "[REDACTED_API_KEY]", text)
+    text = re.sub(r"(?i)(bearer\s+)[A-Za-z0-9._-]+", r"\1[REDACTED]", text)
+    text = re.sub(r"(?i)(api[_-]?key=)[^\s&]+", r"\1[REDACTED]", text)
+    return text[:300] or "request failed"

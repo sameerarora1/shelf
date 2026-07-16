@@ -225,6 +225,7 @@ def test_compare_backends_records_llm_fallback(tmp_path):
     row = rows[0]
     assert row.analysis_modes == {"deterministic": 1}
     assert row.fallback_to_deterministic == 1
+    assert row.status == "fallback_only"
     assert any("fallback" in note.lower() for note in row.fallback_notes)
 
 
@@ -284,8 +285,10 @@ def test_run_comparison_offline_reports_config_and_items(tmp_path):
     assert set(run.report["config"]).isdisjoint({"OPENROUTER_API_KEY", "api_key"})
 
     evaluated = [row for row in run.rows if row.status == "evaluated"]
-    assert len(evaluated) == 2
-    assert all(len(row.reanalyzed_items) == 2 for row in evaluated)
+    fallback_only = [row for row in run.rows if row.status == "fallback_only"]
+    assert len(evaluated) == 1
+    assert len(fallback_only) == 1
+    assert all(len(row.reanalyzed_items) == 2 for row in [*evaluated, *fallback_only])
 
 
 def test_write_comparison_evidence_persists_sanitized_files(tmp_path):

@@ -35,6 +35,14 @@ class FakeClient:
         self.chat = SimpleNamespace(completions=self.completions)
 
 
+class RateLimitError(Exception):
+    status_code = 429
+
+    def __init__(self):
+        self.body = {"error": {"message": "Rate limit exceeded: free-models-per-day"}}
+        super().__init__("rate limit")
+
+
 def _item(**overrides):
     data = {
         "item_id": "item1",
@@ -235,7 +243,7 @@ def test_malformed_llm_response_falls_back_safely() -> None:
     result = analyzer.analyze(_item(), DEFAULT_COLLECTIONS)
 
     assert result.analysis_mode == "deterministic"
-    assert result.suggested_collection == "Needs Review"
+    assert result.suggested_collection == "AI and LLM Applications"
     assert any("deterministic fallback used" in note for note in result.evidence_notes)
 
 
@@ -246,6 +254,18 @@ def test_api_request_failure_falls_back_safely() -> None:
 
     assert result.analysis_mode == "deterministic"
     assert any("OpenRouter analyzer failed" in note for note in result.evidence_notes)
+
+
+def test_rate_limit_is_sanitized_and_stops_later_provider_requests() -> None:
+    client = FakeClient([RateLimitError()])
+    analyzer = OpenAIAnalyzer(model="test-model", client=client)
+
+    first = analyzer.analyze(_item(), DEFAULT_COLLECTIONS)
+    second = analyzer.analyze(_item(item_id="item2"), DEFAULT_COLLECTIONS)
+
+    assert len(client.completions.calls) == 1
+    assert any("HTTP 429" in note for note in first.evidence_notes)
+    assert any("skipped after a prior rate-limit" in note for note in second.evidence_notes)
 
 
 def test_missing_openrouter_api_key_produces_clear_configuration_error(monkeypatch) -> None:

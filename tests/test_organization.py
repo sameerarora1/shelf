@@ -43,3 +43,33 @@ def test_organizer_sends_failed_items_to_review() -> None:
     decision = Organizer().assign(item)
     assert decision.collection == "Needs Review"
 
+
+def test_deterministic_analyzer_creates_a_curated_category_for_caption_context() -> None:
+    item = _item(
+        theme_hint="social post",
+        title="Instagram post by socialtypro",
+        description="Use ChatGPT, Obsidian, Canva, Make, and Google Drive as alternatives.",
+        extracted_text="Use ChatGPT, Obsidian, Canva, Make, and Google Drive as alternatives.",
+    )
+
+    result = DeterministicAnalyzer().analyze(item)
+    decision = Organizer().assign(item, result)
+
+    assert result.category_action == "create_new"
+    assert decision.collection == "AI and LLM Applications"
+
+
+def test_deterministic_analyzer_recognizes_tax_and_retirement_as_investment() -> None:
+    item = _item(
+        theme_hint="social post",
+        title="Tax and retirement planning for children",
+        description="A custodial Roth IRA, tax credits, and retirement investments for children.",
+        extracted_text=(
+            "A custodial Roth IRA, tax credits, and retirement investments for children."
+        ),
+    )
+
+    result = DeterministicAnalyzer().analyze(item)
+
+    assert "investment" in result.topics
+    assert result.suggested_collection == "Investment Education"

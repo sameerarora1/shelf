@@ -539,26 +539,6 @@ Raw evidence: /Users/sameerarora/Desktop/GT2026Su/CS4365/cs4365-shelf/shelf/evid
 }
 ```
 
-## Make Targets
-
-```bash
-make setup
-make test
-```
-
-## Evidence
-
-The ingest command writes local evidence files:
-
-```text
-evidence/
-  output.json
-  items.jsonl
-  traces.jsonl
-```
-
-`output.json` contains normalized items and collection assignments. `traces.jsonl` contains the decision trace for each URL.
-
 ## Analyzer Acceptance Evaluation - Checkpoint 2
 
 `python -m shelf.cli evaluate-analysis` evaluates persisted analyzer output against checkpoint 2 acceptance criteria:
@@ -584,21 +564,79 @@ the deterministic acceptance rubric favored its own source-specific wording.
 
 Sanitized run artifacts are in `evidence/compare-free-models-2026-07-15/`.
 
+## Instagram Analyzer Demo - Checkpoint 3
+
+The five public Instagram examples have caption text, so they make a compact
+end-to-end demo of extraction, categorization, LLM comparison, and explicit
+fallback behavior. The deterministic analyzer has curated rules for the
+caption topics below; it does not claim to be a general semantic classifier.
+
+| Item | Caption topic | Deterministic collection |
+|---|---|---|
+| `ig_post_1` | `llms.txt`, ChatGPT discovery, and small-business AI visibility | AI and LLM Applications |
+| `ig_post_2` | lower-cost alternatives to common AI and productivity tools | AI and LLM Applications |
+| `ig_post_3` | book recommendations and a reading tracker | Books and Reading |
+| `ig_post_4` | child tax credits, Roth IRAs, and long-term investing | Investment Education |
+| `ig_post_5` | software-development practices and better applications | Software Development |
+
+Run one live provider model at a time; this avoids spending the free-model
+allowance across several backends before a useful result is captured:
+
+```bash
+source .venv/bin/activate
+python -m shelf.cli compare-llms \
+  data/instagram_posts.example.csv \
+  --queries data/instagram_retrieval_queries.example.csv \
+  --models "deterministic,nvidia/nemotron-3-ultra-550b-a55b:free,unavailable" \
+  --report-out evidence/instagram-comparison-demo
+```
+
+`comparison.md` is the README-ready artifact. A row with status
+`fallback_only` means every reported quality and retrieval metric is from the
+deterministic fallback—not an LLM result—and is excluded from the leaderboard.
+The fallback note includes a short, redacted provider reason. For example,
+OpenRouter may return HTTP 429 when the daily free-model quota has been used;
+wait for its reset or use a funded provider before treating a rerun as a live
+LLM demonstration. API keys and request headers are never persisted.
+
 ## Instagram Public-Post Incorporation Evidence - Checkpoint 3
 
 Instagram `/p/...` and `/reel/...` URLs now route through the active
 `InstagramPostExtractor` path. The committed run in
 `evidence/instagram-live/` contains five successful public-post extractions,
-including canonical URLs, authors, captions, deterministic summaries, and
-`Needs Review` assignments. The companion `items.jsonl` and `traces.jsonl`
-show the normalized records and the full triage, extraction, validation,
-analysis, organization, indexing, and persistence path for each post.
+including canonical URLs, authors, captions, and the original deterministic
+summaries. Its original `Needs Review` assignments document the prior
+three-topic deterministic limitation; rerunning with the current caption-aware
+rules produces the demo collections above. The companion `items.jsonl` and
+`traces.jsonl` show the normalized records and the full triage, extraction,
+validation, analysis, organization, indexing, and persistence path for each
+post.
 
 Sanitized raw OpenCLI responses and limited markdown are preserved under
 `evidence/instagram-live/raw/`. The `ig_fallback_demo/` artifacts also record
 the unavailable-session and metadata-fallback errors, so blocked access stays
 visible rather than being silently discarded. The evidence contains no
 private account identity or session data.
+
+## Make Targets
+
+```bash
+make setup
+make test
+```
+
+## Evidence
+
+The ingest command writes local evidence files:
+
+```text
+evidence/
+  output.json
+  items.jsonl
+  traces.jsonl
+```
+
+`output.json` contains normalized items and collection assignments. `traces.jsonl` contains the decision trace for each URL.
 
 ## Supported Sources
 
