@@ -571,34 +571,34 @@ evidence/
 
 The same evaluator can compare deterministic and OpenRouter-backed analyzer runs because it reads normalized `SavedItem` records and trace events from SQLite.
 
-## Analyzer Comparison - Checkpoint 3 (this branch, `cp3-analyzer-comparison`)
+## (Free) LLM Comparison: Nemotron vs. Poolside Laguna - Checkpoint 3
 
-`python -m shelf.cli compare-llms` (adapted from the professor's
-`ai-suggestions/cp3` reference) extracts the mixed dataset once, then
-re-scores each analyzer backend on identical items using the acceptance
-evaluator, the retrieval evaluator, and per-item latency. It always includes
-an explicit `unavailable` backend — a real `OpenAIAnalyzer` wired to a stub
-client that always fails — so the deterministic-fallback path is measured
-rather than skipped.
+Both models were run through OpenRouter on the same extracted 10-URL corpus
+and nine labeled retrieval queries. They returned LLM output for all items;
+the deterministic acceptance rubric favored its own source-specific wording.
 
-A real run was executed with `SHELF_ANALYZER=openrouter python -m shelf.cli
-compare-llms` against NVIDIA Nemotron-3-Ultra over the live 10-URL dataset and
-9 retrieval queries. The API key, `.env` contents, and auth headers are not
-present in anything committed. Results, persisted under
-`evidence/compare-latest/` (`comparison.md`, `comparison.json`,
-`config.json`, per-backend `items.jsonl`, `traces.jsonl`):
+| Model | Acceptance | Structured output | P@3 | MRR | Mean analysis latency |
+|---|---:|---:|---:|---:|---:|
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | 0.00 | 0.80 | 0.667 | 1.00 | 11.39 s |
+| `poolside/laguna-m.1:free` | 0.00 | 0.80 | 0.667 | 1.00 | 12.21 s |
 
-| Backend | Acceptance | Structured-output | Tag agreement | Fallback validity | Precision@3 | MRR | Fallback count | Mean latency |
-|---|---|---|---|---|---|---|---|---|
-| deterministic | 1.00 | 1.00 | 1.00 | 1.00 | 0.741 | 1.00 | 0/10 | 0.6ms |
-| nemotron (real OpenRouter run) | 0.10 | 0.80 | 0.10 | 0.70 | 0.667 | 1.00 | 0/10 | 8079.6ms |
-| unavailable (forced fallback) | 1.00 | 1.00 | 1.00 | 1.00 | 0.741 | 1.00 | 10/10 | 0.8ms |
+Sanitized run artifacts are in `evidence/compare-free-models-2026-07-15/`.
 
-Nemotron's lower acceptance score mainly reflects vocabulary mismatch against
-the token-based expected-topic checks (e.g. "sheet pan meals" vs. the expected
-keyword), not a broken analyzer path — a genuine deterministic-vs-LLM tradeoff,
-reported here rather than hidden. 37 tests pass on this branch (8 new); `ruff
-check .` is clean. This branch is not merged into `main`.
+## Instagram Public-Post Incorporation Evidence - Checkpoint 3
+
+Instagram `/p/...` and `/reel/...` URLs now route through the active
+`InstagramPostExtractor` path. The committed run in
+`evidence/instagram-live/` contains five successful public-post extractions,
+including canonical URLs, authors, captions, deterministic summaries, and
+`Needs Review` assignments. The companion `items.jsonl` and `traces.jsonl`
+show the normalized records and the full triage, extraction, validation,
+analysis, organization, indexing, and persistence path for each post.
+
+Sanitized raw OpenCLI responses and limited markdown are preserved under
+`evidence/instagram-live/raw/`. The `ig_fallback_demo/` artifacts also record
+the unavailable-session and metadata-fallback errors, so blocked access stays
+visible rather than being silently discarded. The evidence contains no
+private account identity or session data.
 
 ## Supported Sources
 
@@ -607,6 +607,10 @@ check .` is clean. This branch is not merged into `main`.
   does not download video or audio.
 - Public webpages use `shelf.extractors.webpage.WebPageExtractor`, with bounded
   `httpx` requests and `trafilatura` text extraction.
+- Public Instagram posts use
+  `shelf.extractors.instagram.InstagramPostExtractor`, which uses the optional
+  OpenCLI browser bridge and preserves a public-metadata fallback when the
+  session or post page is unavailable.
 - Blocked or limited public social links use
   `shelf.extractors.public_metadata.PublicMetadataExtractor` to preserve public
   metadata when available, or a normalized blocked/metadata-only fallback record
@@ -614,25 +618,20 @@ check .` is clean. This branch is not merged into `main`.
 - Unsupported or unsafe URLs are rejected with visible normalized records and
   trace entries rather than being silently dropped.
 
-Experimental social extraction work is intentionally kept on separate branches
-from `main` for closed, isolated testing before any merge:
-
-- `support-x-posts` adds an experimental `shelf.extractors.x.XPostExtractor`
-  for `x.com` and `twitter.com` status URLs.
-- `support-ig-posts` adds an experimental
-  `shelf.extractors.instagram.InstagramPostExtractor` for Instagram `/p/...`
-  post URLs.
-
-Both branches explore Agent-Reach as an optional backend, following its
+X/Twitter extraction remains experimental branch work on `support-x-posts`,
+which adds `shelf.extractors.x.XPostExtractor` for `x.com` and `twitter.com`
+status URLs. That branch explores Agent-Reach as an optional backend, following its
 [English README design philosophy](https://github.com/Panniantong/Agent-Reach/blob/main/docs/README_en.md#design-philosophy).
-Agent-Reach is wrapped behind Shelf's existing extractor and normalization flow:
-it can provide candidate post data, but it does not replace the deterministic
-routing, fallback, evidence, trace, and normalized `SavedItem` pipeline.
+Instagram's active OpenCLI extractor follows the same normalization flow: the
+optional backend can provide candidate post data, but it does not replace the
+deterministic routing, fallback, evidence, trace, and normalized `SavedItem`
+pipeline.
 
 ## Specifications
 
-- X/Twitter and Instagram post extraction are experimental branch work, not
-  guaranteed baseline `main` support unless those branches are merged.
+- X/Twitter post extraction remains experimental branch work. Instagram public
+  post extraction is active baseline support, subject to public availability,
+  browser/session state, and the visible fallback behavior documented above.
 - Social and webpage retrieval can be unavailable, blocked, rate-limited, or
   dependent on browser/session state. In those cases Shelf may only produce
   metadata-only or blocked/failure records.
